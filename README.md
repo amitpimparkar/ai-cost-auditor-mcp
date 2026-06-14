@@ -52,14 +52,20 @@ print(waste)
 
 ## Custom pricing
 
-Pricing rules are stored in the package defaults, but developers can override values at runtime:
+Pricing rules are stored in the package defaults, but developers can override values at runtime.
+The override supports both per-1k and per-1M units by providing unit metadata.
 
 ```python
 custom_cost = estimate_task_cost(
     model_name="openai/gpt-4.1",
     prompt_tokens=1200,
     completion_tokens=400,
-    pricing_override={"input_cost_per_1k": 0.0035, "output_cost_per_1k": 0.0042},
+    pricing_override={
+        "input_cost": 3500.0,
+        "input_cost_unit": "1M",
+        "output_cost": 4200.0,
+        "output_cost_unit": "1M",
+    },
 )
 ```
 
