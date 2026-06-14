@@ -63,3 +63,42 @@ def estimate_task_cost_from_text(
         completion_tokens=completion_tokens,
         pricing_override=pricing_override,
     )
+
+
+def convert_cost_to_unit(cost_dict: Dict[str, float], unit: str = "1M") -> Dict[str, object]:
+    """Convert cost output to a different unit basis.
+
+    Args:
+        cost_dict: Cost dictionary from estimate_task_cost().
+        unit: Target unit ('1k', '1M', or 'token').
+
+    Returns:
+        Cost dictionary with converted per-unit pricing.
+    """
+    if unit.strip().lower() in {"1k", "k", "1000"}:
+        return cost_dict
+    if unit.strip().lower() in {"1m", "m", "1000000", "million"}:
+        return {
+            "model_name": cost_dict["model_name"],
+            "prompt_tokens": cost_dict["prompt_tokens"],
+            "completion_tokens": cost_dict["completion_tokens"],
+            "input_cost": round(cost_dict["input_cost"] * 1000, 8),
+            "output_cost": round(cost_dict["output_cost"] * 1000, 8),
+            "total_cost": cost_dict["total_cost"],
+            "input_cost_per_unit": round(cost_dict["input_cost_per_1k"] * 1000, 8),
+            "output_cost_per_unit": round(cost_dict["output_cost_per_1k"] * 1000, 8),
+            "unit": "1M",
+        }
+    if unit.strip().lower() in {"1", "token", "per token"}:
+        return {
+            "model_name": cost_dict["model_name"],
+            "prompt_tokens": cost_dict["prompt_tokens"],
+            "completion_tokens": cost_dict["completion_tokens"],
+            "input_cost": round(cost_dict["input_cost"], 8),
+            "output_cost": round(cost_dict["output_cost"], 8),
+            "total_cost": cost_dict["total_cost"],
+            "input_cost_per_unit": round(cost_dict["input_cost_per_1k"] / 1000, 10),
+            "output_cost_per_unit": round(cost_dict["output_cost_per_1k"] / 1000, 10),
+            "unit": "token",
+        }
+    raise ValueError(f"Unsupported unit '{unit}'. Use '1k', '1M', or 'token'.")

@@ -1,4 +1,8 @@
-from ai_cost_auditor_mcp import estimate_task_cost, estimate_task_cost_from_text
+from ai_cost_auditor_mcp import (
+    convert_cost_to_unit,
+    estimate_task_cost,
+    estimate_task_cost_from_text,
+)
 
 
 def test_estimate_task_cost_default_model():
@@ -46,3 +50,17 @@ def test_estimate_task_cost_with_per_million_override():
     assert result["input_cost"] == 1.5
     assert result["output_cost"] == 2.0
     assert result["total_cost"] == 3.5
+
+
+def test_convert_cost_to_per_million():
+    result = estimate_task_cost(
+        model_name="openai/gpt-3.5-turbo",
+        prompt_tokens=1000,
+        completion_tokens=500,
+    )
+
+    cost_per_million = convert_cost_to_unit(result, unit="1M")
+
+    assert cost_per_million["unit"] == "1M"
+    assert cost_per_million["input_cost_per_unit"] == result["input_cost_per_1k"] * 1000
+    assert cost_per_million["output_cost_per_unit"] == result["output_cost_per_1k"] * 1000
