@@ -25,7 +25,13 @@ pip install .
 ## Usage
 
 ```python
-from ai_cost_auditor_mcp import estimate_task_cost, compare_model_cost, detect_token_waste
+from ai_cost_auditor_mcp import (
+    estimate_task_cost,
+    estimate_task_cost_from_text,
+    compare_model_cost,
+    detect_token_waste,
+    estimate_tokens,
+)
 
 cost = estimate_task_cost(
     model_name="openai/gpt-4.1",
@@ -48,6 +54,33 @@ print(comparison)
 
 waste = detect_token_waste(prompt_tokens=1200, completion_tokens=400)
 print(waste)
+```
+
+## Dynamic text-based token estimation
+
+```python
+from ai_cost_auditor_mcp import estimate_task_cost_from_text, estimate_tokens
+
+prompt = "Summarize the report and give three recommendations."
+response = "Here are three recommendations..."
+
+prompt_tokens = estimate_tokens(prompt, model_name="openai/gpt-4.1")
+completion_tokens = estimate_tokens(response, model_name="openai/gpt-4.1")
+
+cost = estimate_task_cost(
+    model_name="openai/gpt-4.1",
+    prompt_tokens=prompt_tokens,
+    completion_tokens=completion_tokens,
+)
+print(cost)
+
+# Or use the helper that accepts raw text directly:
+cost_from_text = estimate_task_cost_from_text(
+    model_name="openai/gpt-4.1",
+    prompt_text=prompt,
+    completion_text=response,
+)
+print(cost_from_text)
 ```
 
 ## Custom pricing

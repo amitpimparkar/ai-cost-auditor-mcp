@@ -1,4 +1,4 @@
-from ai_cost_auditor_mcp import estimate_task_cost
+from ai_cost_auditor_mcp import estimate_task_cost, estimate_task_cost_from_text
 
 
 def test_estimate_task_cost_default_model():
@@ -14,6 +14,18 @@ def test_estimate_task_cost_default_model():
     assert result["input_cost"] == 0.0015
     assert result["output_cost"] == 0.001
     assert result["total_cost"] == 0.0025
+
+
+def test_estimate_task_cost_from_text():
+    result = estimate_task_cost_from_text(
+        model_name="openai/gpt-3.5-turbo",
+        prompt_text="Hello, this is an example prompt.",
+        completion_text="Hello, this is a short response.",
+    )
+
+    assert result["prompt_tokens"] > 0
+    assert result["completion_tokens"] > 0
+    assert result["total_cost"] > 0
 
 
 def test_estimate_task_cost_with_per_million_override():

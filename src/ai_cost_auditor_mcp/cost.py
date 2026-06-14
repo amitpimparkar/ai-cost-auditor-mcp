@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, Optional
 
 from .pricing import ModelPricing, get_model_pricing
+from .tokenizer import estimate_tokens
 
 
 def estimate_task_cost(
@@ -41,3 +42,24 @@ def estimate_task_cost(
         "input_cost_per_1k": pricing.input_cost_per_1k,
         "output_cost_per_1k": pricing.output_cost_per_1k,
     }
+
+
+def estimate_task_cost_from_text(
+    model_name: str,
+    prompt_text: str,
+    completion_text: str = "",
+    pricing_override: Optional[Dict[str, float]] = None,
+) -> Dict[str, float]:
+    """Estimate the cost of a task using raw prompt and completion text.
+
+    This helper computes token estimates automatically and then delegates to
+    `estimate_task_cost()`.
+    """
+    prompt_tokens = estimate_tokens(prompt_text, model_name=model_name)
+    completion_tokens = estimate_tokens(completion_text, model_name=model_name)
+    return estimate_task_cost(
+        model_name=model_name,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        pricing_override=pricing_override,
+    )
